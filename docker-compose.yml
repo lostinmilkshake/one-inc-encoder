@@ -1,0 +1,32 @@
+name: 'oneinc-encoder'
+services: 
+  enocder-server:
+    ports:
+      - '17738:80'      
+    build:
+      dockerfile: Dockerfile
+      context: ./OneInc.Encoder/
+    container_name: 'oneinc-encoder-server'
+    image: oneinc.encoder
+    environment:
+      - AllowedOrigins=http://localhost:3000
+    
+  enocder-client:
+    ports:
+      - '5173:80'      
+    build:
+      dockerfile: Dockerfile
+      context: ./OneInc.Encoder.Frontend/one-inc-client/
+    container_name: 'oneinc-encoder-client'
+    image: oneinc.encoder.client    
+
+  encoder-auth: 
+    ports:
+      - '3000:80'
+    container_name: 'oneinc-encoder-auth'
+    image: beevelop/nginx-basic-auth    
+    environment:
+      - FORWARD_HOST=oneinc-encoder-client
+      - HTPASSWD=admin:$$apr1$$3hsiw6jv$$fTD6iRVZ8seuSFSuf.4AK0
+    depends_on:
+      - encoder-client
