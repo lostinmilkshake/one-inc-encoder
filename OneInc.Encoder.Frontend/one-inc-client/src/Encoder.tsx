@@ -9,7 +9,7 @@ export const Encoder = () => {
     const [encodedString, setEncodedString] = useState<string>("");
     const [inputString, setInputString] = useState<string>("")
     const [connection, setConnection] = useState<HubConnection>();
-    const [stream, setStream] = useState<ISubscription<any>>();
+    const [stream, setStream] = useState<ISubscription<string>>();
     const [isEncoding, setIsEncoding] = useState<boolean>(false);
 
     useEffect(() => {
@@ -34,8 +34,7 @@ export const Encoder = () => {
                     console.log(encodedString);
                     setEncodedString(prevValue => prevValue + item);
                 },
-                complete: () => {
-                    console.log("Completed!")
+                complete: () => {                    
                     connection?.stop();
                     setIsEncoding(false);
                 },
@@ -59,12 +58,10 @@ export const Encoder = () => {
     return (
         <div className="container">
             <h1>Base64 Encoder</h1>            
-            
-            {/* <input type="text" value={inputString} disabled={isEncoding} onChange={e => setInputString(e.target.value)} /> <br /> */}
+                        
             {(encodedString || isEncoding) && <div>Encoded value: {encodedString}</div>}
             <div className="encode-input">
-                <TextInput value={inputString} disabled={isEncoding} onChange={e => setInputString(e.target.value)} />
-                {/* {isEncoding && <button onClick={handleCancel}>Cancel</button>} */}
+                <TextInput value={inputString} disabled={isEncoding} onChange={e => setInputString(e.target.value)} error="" />                
                 {isEncoding && <ActionIcon onClick={handleCancel} loading={isEncoding}><X/></ActionIcon>}
             </div>
             {!isEncoding && <Button onClick={handleClick} color="dark">Convert</Button>}
