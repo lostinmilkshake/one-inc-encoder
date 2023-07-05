@@ -6,11 +6,14 @@ import { X } from "tabler-icons-react";
 import './Encoder.css'
 
 export const Encoder = () => {
+    const VALIDATION_MESSAGE_TEXT = "Value can't be empty";
+
     const [encodedString, setEncodedString] = useState<string>("");
     const [inputString, setInputString] = useState<string>("")
     const [connection, setConnection] = useState<HubConnection>();
     const [stream, setStream] = useState<ISubscription<string>>();
     const [isEncoding, setIsEncoding] = useState<boolean>(false);
+    const [validationMessage, setValidationMessage] = useState<string>("");
 
     useEffect(() => {
         const newConnection = new signalR.HubConnectionBuilder()
@@ -20,7 +23,11 @@ export const Encoder = () => {
         setConnection(newConnection);
     }, [])
 
-    const handleClick = async () => {
+    const handleClick = async () => {   
+        if (validationMessage) {
+            return;
+        }
+        
         await connection?.start();
 
         setEncodedString("");
@@ -54,6 +61,19 @@ export const Encoder = () => {
         setIsEncoding(false);
     }
 
+    const onChangeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const targetValue = e.target.value;
+        setInputString(e.target.value); 
+
+        if (!targetValue) {
+            
+            setValidationMessage(VALIDATION_MESSAGE_TEXT);
+        }
+        else if (validationMessage) {
+            setValidationMessage("");
+        }
+    }
+
 
     return (
         <div className="container">
@@ -61,7 +81,7 @@ export const Encoder = () => {
                         
             {(encodedString || isEncoding) && <div>Encoded value: {encodedString}</div>}
             <div className="encode-input">
-                <TextInput value={inputString} disabled={isEncoding} onChange={e => setInputString(e.target.value)} error="" />                
+                <TextInput value={inputString} disabled={isEncoding} onChange={onChangeInput} error={validationMessage} />                
                 {isEncoding && <ActionIcon onClick={handleCancel} loading={isEncoding}><X/></ActionIcon>}
             </div>
             {!isEncoding && <Button onClick={handleClick} color="dark">Convert</Button>}
